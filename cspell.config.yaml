@@ -4,5 +4,6 @@ dictionaryDefinitions: []
 dictionaries: []
 words:
   - flos
+  - struct
 ignoreWords: []
 import: []
