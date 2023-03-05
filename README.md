@@ -39,21 +39,19 @@ Document comment start with two forward slashes and a question mark, and documen
 | Integer          | `Int8`, `Int16`, `Int32`, `Int64`, `Int128`, `Int`              |
 | Unsigned integer | `UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`, `UInt`        |
 | Float            | `Float16`, `Float32`, `Float64`, `Float80`, `Float128`, `Float` |
+| Boolean          | `false`,`true`                                                  |
+| Pointer          |                                                                 |
 
 ### Complex type
 
-- Boolean
-- Vector
 - Array
-- Tuple
 - Map
-- Set
 - Symbol
-- Void
-- Unknown
+- String
 
 ### Custom type
 
+- type
 - enum
 - struct
 
@@ -75,42 +73,34 @@ Document comment start with two forward slashes and a question mark, and documen
 -9_8_7.0e+65 // Floating point
 ```
 
-- String literal
+- Array literal
 
 ```flos
-"string \"\t\r\n\xff\u{ffffff}\\" // Single-line string
-r"\t\r\n"                         // Raw string
-f"$(1 + 1)"                       // Format string
+[1, 2, 3] // `Array[Int]`
 ```
 
 - Vector literal
 
 ```flos
-[1, 2, 3] // Vector[Int, 3]
-```
-
-- Array literal
-
-```flos
-[1, 2, 3] // Array[Int]
+[1, 2, 3] // `Array[Int: 3]`
 ```
 
 - Tuple literal
 
 ```flos
-[1, 2, "3"] // Tuple[Int, Int, String]
+[1, 2, "3"] // `Array[Int: 2, String]`
 ```
 
 - Map literal
 
 ```flos
-{ "name": "map", value: 0 } // Map[String, String or Int]
+{ "name": "map", "value": 0 } // `Map[String, String or Int]`
 ```
 
 - Set literal
 
 ```flos
-{ "success", "failure", 1, 0 } // Set[String or Int]
+{ "success", "failure", 1, 0 } // `Map[String or Int]`
 ```
 
 - Symbol literal
@@ -119,20 +109,29 @@ f"$(1 + 1)"                       // Format string
 'symbol' // Symbol
 ```
 
+- String literal
+
+```flos
+"string \"\t\r\n\xff\u{10ffff}\\" // `Array[UInt8: 15]` Single-line string
+r"\t\r\n"                         // `Array[UInt8: 3]` Raw string
+f"$(1 + 1)"                       // `Array[UInt8: 1]` Format string
+t"$(props.item)"                  // `Array[Array[UInt8: 8], Array[Unknown]]` Template string
+```
+
 ## Variables
 
 - Bind immutable variables
 
 ```flos
-let value = 0
-value = 1 // failure!
+let value = false
+value = true // failure!
 ```
 
 - Bind mutable variables
 
 ```flos
-mut value = 0
-value = 1 // success!
+mut value = false
+value = true // success!
 ```
 
 ## Function
@@ -140,9 +139,41 @@ value = 1 // success!
 ### Example
 
 ```flos
-fn main(): Int
+let { usePointer } = @use("flos:pointer")
+
+@[usePointer]
+pub fn main(): Int
+  type Io = @use("flos:io")
+  let output: Io = .output
+
+  let value = false
+  let value_pointer: Pointer[Boolean] = value.&      // `0x7ffd0d8e29fc`
+  let value_pointer_value: Boolean = value_pointer.* // `false`
+
+  mut failure_value_pointer_1 = value.&       // failure!
+  mut failure_value_pointer_2 = value_pointer // failure!
+
+  mut success_value_pointer_value_1 = value               // clone success!
+  mut success_value_pointer_value_2 = value_pointer_value // clone success!
+
+  mut new_value = value_pointer_value // `false`
+  new_value_pointer.* = true
+  let new_value_pointer_value = new_value_pointer.* // `true`
+
+  output(value)                   // `false`
+  output(value_pointer)           // `0x7ffd0d8e29fc`
+  output(value_pointer_value)     // `false`
+  output(new_value)               // `true`
+  output(new_value_pointer)       // `0x6b3f1a8d6c0f`
+  output(new_value_pointer_value) // `true`
+
   return 0
 fn;
+
+fn double(x) = x * x
+
+let anonymousDoubleFn1 = fn(x) = x * x
+let anonymousDoubleFn2 = fn(x) return x fn;
 ```
 
 ## Enum
@@ -150,13 +181,6 @@ fn;
 ### Example
 
 ```flos
-enum Boolean
-  false = 0
-  true = 1
-enum;
-
-let boolean = Boolean.true // 1
-
 enum Ip
   v4(String) = "v4"
   v6(String) = "v6"
@@ -191,4 +215,8 @@ let user_1 = User.{
 
 mut user_2: User = .{}
 user_2.active = .true
+```
+
+```
+
 ```
