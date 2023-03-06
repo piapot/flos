@@ -38,12 +38,12 @@ Document comment start with two forward slashes and a question mark, and documen
 
 ## Primitive type
 
-| Type             |                                                                 |
+| Type             | Name                                                            |
 | :--------------- | :-------------------------------------------------------------- |
 | Integer          | `Int8`, `Int16`, `Int32`, `Int64`, `Int128`, `Int`              |
 | Unsigned integer | `UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`, `UInt`        |
 | Float            | `Float16`, `Float32`, `Float64`, `Float80`, `Float128`, `Float` |
-| Boolean          | `false`,`true`                                                  |
+| Boolean          | `Bool`                                                          |
 
 ## Complex type
 
@@ -113,10 +113,10 @@ Document comment start with two forward slashes and a question mark, and documen
 - String literal
 
 ```flos
-"string \"\t\r\n\xff\u{10ffff}\\" // `Array[UInt8: 15]` Single-line string
+"string \"\t\r\n\xff\u{10ffff}\\" // `Array[UInt8: 19]` Single-line string
 r"\t\r\n"                         // `Array[UInt8: 3]` Raw string
 f"$(1 + 1)"                       // `Array[UInt8: 1]` Format string
-t"$(props.item)"                  // `Array[Array[UInt8: 8], Array[Unknown]]` Template string
+t"$(props.item)"                  // `Array[Array[UInt8: 0], Array[Unknown]]` Template string
 ```
 
 ---
@@ -139,7 +139,7 @@ value = true // success!
 
 ---
 
-# Enum
+# Enumeration
 
 ## Example
 
@@ -161,25 +161,27 @@ ip = .v6("::1")  // "::1"
 
 ---
 
-# Struct
+# Structure
 
 ## Example
 
 ```flos
+type String = Array[UInt: _]
+
 struct User
   name: String = "user",
   email: String = "user@example.com",
-  active: Boolean = .false,
+  active: Bool = false,
 struct;
 
 let user_1 = User.{
   name = "user_1",
   email = "user_1@example.com",
-  active = .true,
+  active = true,
 }
 
 mut user_2: User = .{}
-user_2.active = .true
+user_2.active = true
 ```
 
 ---
@@ -189,17 +191,17 @@ user_2.active = .true
 ## Example
 
 ```flos
-let { usePointer } = @use("flos:pointer")
+type Pointer = @use("flos:pointer")
+let { pointer } = Pointer
 
-@[usePointer]
-pub fn main(): Int
+@[pointer]
+fn main()
   type Io = @use("flos:io")
-
-  let output: Io = .output
+  let { output } = Io
 
   let value = false
-  let value_pointer: Pointer[Boolean] = value.&      // `0x7ffd0d8e29fc`
-  let value_pointer_value: Boolean = value_pointer.* // `false`
+  let value_pointer: Pointer[Bool] = value.&      // `0x7ffd0d8e29fc`
+  let value_pointer_value: Bool = value_pointer.* // `false`
 
   mut failure_value_pointer_1 = value.&       // failure!
   mut failure_value_pointer_2 = value_pointer // failure!
@@ -218,12 +220,55 @@ pub fn main(): Int
   output(new_value)               // `true`
   output(new_value_pointer)       // `0x6b3f1a8d6c0f`
   output(new_value_pointer_value) // `true`
-
-  return 0
 fn;
 
-fn double(x) = x * x
+let anonymousFn = fn = 0
 
-let anonymousDoubleFn1 = fn(x) = x * x
-let anonymousDoubleFn2 = fn(x) return x fn;
+let x = 1
+fn closureFn() = x
+
+fn double_fn_1(x: Int): Int = x * x
+fn double_fn_2(x: Int): Int return x * x fn;
+```
+
+---
+
+# Extension
+
+## Example
+
+```flos
+type Io = @use("flos:io")
+type String = Array[UInt8: _]
+
+ext String
+  type Self = @self()
+
+  fn String(value: Array[UInt8: _]): Self
+    return value
+  fn;
+
+  fn toBool(): Bool
+    mut result
+
+    when(self)
+      case "" result = false
+      else result = true
+    when;
+
+    return result
+  fn;
+
+  fn toInt(): Int
+    return self.getLength()
+  fn;
+ext;
+
+let string = String("ok")
+let bool = string.toBool()
+let int = string.toInt()
+
+Io.output(string) // "ok"
+Io.output(bool)   // `true`
+Io.output(int)    // `2`
 ```
