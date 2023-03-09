@@ -19,8 +19,8 @@ Single-line comment start with two forward slashes.
 File comment start with two forward slashes and an exclamation mark, and file comment can only be placed in front of the file.
 
 ```flos
-//! This is a file comment.
-//! You can write more lines.
+//? This is a file comment.
+//? You can write more lines.
 ```
 
 ## Document comment
@@ -28,8 +28,8 @@ File comment start with two forward slashes and an exclamation mark, and file co
 Document comment start with two forward slashes and a question mark, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
 
 ```flos
-//? This is a document comment.
-//? You can write more lines.
+//! This is a document comment.
+//! You can write more lines.
 ```
 
 ---
@@ -115,8 +115,8 @@ Document comment start with two forward slashes and a question mark, and documen
 ```flos
 "string \"\t\r\n\xff\u{10ffff}\\" // `Array[UInt8: 19]` Single-line string
 r"\t\r\n"                         // `Array[UInt8: 3]` Raw string
-f"$(1 + 1)"                       // `Array[UInt8: 1]` Format string
-t"$(props.item)"                  // `Array[Array[UInt8: 0], Array[Unknown]]` Template string
+f"#(1 + 1)"                       // `Array[UInt8: 1]` Format string
+t"#(props.item)"                  // `Array[Array[UInt8: 0], Array[Unknown]]` Template string
 ```
 
 ---
@@ -233,7 +233,7 @@ fn double_fn_2(x: Int): Int return x * x fn;
 
 ---
 
-# Extension
+# Extend
 
 ## Example
 
@@ -241,7 +241,7 @@ fn double_fn_2(x: Int): Int return x * x fn;
 type Io = @use("flos:io")
 type String = Array[UInt8: _]
 
-ext String
+extend String`
   type Self = @self()
 
   fn String(value: Array[UInt8: _]): Self
@@ -262,7 +262,7 @@ ext String
   fn toInt(): Int
     return self.getLength()
   fn;
-ext;
+extend;
 
 let string = String("ok")
 let bool = string.toBool()
