@@ -8,28 +8,28 @@ A simple script language.
 
 ## Single-line comment
 
-Single-line comment start with two forward slashes.
+A single line comment begins with a `#` sign.
 
 ```flos
-// This is a single-line comment.
+# This is a single-line comment.
 ```
 
 ## File comment
 
-File comment start with two forward slashes and an exclamation mark, and file comment can only be placed in front of the file.
+File comment start with a `#?` mark, and file comment can only be placed in front of the file.
 
 ```flos
-//? This is a file comment.
-//? You can write more lines.
+#? This is a file comment.
+#? You can write more lines.
 ```
 
 ## Document comment
 
-Document comment start with two forward slashes and a question mark, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
+Document comment start with a `#!`, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
 
 ```flos
-//! This is a document comment.
-//! You can write more lines.
+#! This is a document comment.
+#! You can write more lines.
 ```
 
 ---
@@ -38,7 +38,7 @@ Document comment start with two forward slashes and a question mark, and documen
 
 ## Primitive type
 
-| Type             | Name                                                            |
+|                  | Name                                                            |
 | :--------------- | :-------------------------------------------------------------- |
 | Integer          | `Int8`, `Int16`, `Int32`, `Int64`, `Int128`, `Int`              |
 | Unsigned integer | `UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`, `UInt`        |
@@ -61,62 +61,62 @@ Document comment start with two forward slashes and a question mark, and documen
 - Integer literal
 
 ```flos
--0_9_8_7 // Decimal int
--0xf_e_d // Hex int
--0o7_6_5 // Octal int
--0b1_0_1 // Binary int
+-0_9_8_7 # Decimal int
+-0xf_e_d # Hex int
+-0o7_6_5 # Octal int
+-0b1_0_1 # Binary int
 ```
 
 - Float literal
 
 ```flos
--9_8_7.6_5   // Float
--9_8_7.0e+65 // Floating point
+-9_8_7.6_5   # Float
+-9_8_7.0e+65 # Floating point
 ```
 
 - Array literal
 
 ```flos
-[1, 2, 3] // `Array[Int]`
+[1, 2, 3] # `Array[Int]`
 ```
 
 - Vector literal
 
 ```flos
-[1, 2, 3] // `Array[Int: 3]`
+[1, 2, 3] # `Array[Int: 3]`
 ```
 
 - Tuple literal
 
 ```flos
-[1, 2, "3"] // `Array[Int: 2, String]`
+[1, 2, "3"] # `Array[Int: 2, String]`
 ```
 
 - Map literal
 
 ```flos
-{ "name": "map", "value": 0 } // `Map[String, String or Int]`
+{ "name": "map", "value": 0 } # `Map[String, String or Int]`
 ```
 
 - Set literal
 
 ```flos
-{ "success", "failure", 1, 0 } // `Map[String or Int]`
+{ "success", "failure", 1, 0 } # `Map[String or Int]`
 ```
 
 - Symbol literal
 
 ```flos
-'symbol' // Symbol
+'symbol' # Symbol
 ```
 
 - String literal
 
 ```flos
-"string \"\t\r\n\xff\u{10ffff}\\" // `Array[UInt8: 19]` Single-line string
-r"\t\r\n"                         // `Array[UInt8: 3]` Raw string
-f"#(1 + 1)"                       // `Array[UInt8: 1]` Format string
-t"#(props.item)"                  // `Array[Array[UInt8: 0], Array[Unknown]]` Template string
+"string \"\t\r\n\xff\u{10ffff}\\" # `Array[UInt8: 19]` Single-line string
+r"\t\r\n"                         # `Array[UInt8: 3]` Raw string
+f"(1 + 1)"                       # `Array[UInt8: 1]` Format string
+t"(props.item)"                  # `Array[Array[UInt8: 0], Array[Unknown]]` Template string
 ```
 
 ---
@@ -126,15 +126,15 @@ t"#(props.item)"                  // `Array[Array[UInt8: 0], Array[Unknown]]` Te
 - Bind immutable variable
 
 ```flos
-let value = false
-value = true // failure!
+value = false
+value = true # failure!
 ```
 
 - Bind mutable variable
 
 ```flos
-mut value = false
-value = true // success!
+$value = false
+$value = true # success!
 ```
 
 ---
@@ -144,19 +144,19 @@ value = true // success!
 ## Example
 
 ```flos
-enum Ip
+Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
-enum;
+}
 
-Ip.v4 // "v4"
-Ip.v6 // "v6"
+Ip.v4 # "v4"
+Ip.v6 # "v6"
 
-let ip_v4 = Ip.v4("127.0.0.1") // "127.0.0.1"
-let ip_v6 = Ip.v6("::1")       // "::1"
+ip_v4 = Ip.v4("127.0.0.1") # "127.0.0.1"
+ip_v6 = Ip.v6("::1")       # "::1"
 
-mut ip: Ip = .v4 // "v4"
-ip = .v6("::1")  // "::1"
+$ip: Ip = .v4 # "v4"
+$ip = .v6("::1")  # "::1"
 ```
 
 ---
@@ -166,22 +166,22 @@ ip = .v6("::1")  // "::1"
 ## Example
 
 ```flos
-type String = Array[UInt: _]
+String = Array[UInt: _]
 
-struct User
+User = {
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-struct;
+}
 
-let user_1 = User.{
+user_1 = User.{
   name = "user_1",
   email = "user_1@example.com",
   active = true,
 }
 
-mut user_2: User = .{}
-user_2.active = true
+$user_2: User = .{}
+$user_2.active = true
 ```
 
 ---
@@ -191,44 +191,43 @@ user_2.active = true
 ## Example
 
 ```flos
-type Pointer = @use("flos:pointer")
-let { pointer } = Pointer
+{ pointer } = @import("flos:pointer")
 
 @[pointer]
-fn main()
-  type Io = @use("flos:io")
-  let { output } = Io
+fn main() {
+  Io = @import("flos:io")
+  { output } = Io
 
-  let value = false
-  let value_pointer: Pointer[Bool] = value.&      // `0x7ffd0d8e29fc`
-  let value_pointer_value: Bool = value_pointer.* // `false`
+  value = false
+  value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
+  value_pointer_value: Bool = value_pointer.* # `false`
 
-  mut failure_value_pointer_1 = value.&       // failure!
-  mut failure_value_pointer_2 = value_pointer // failure!
+  $failure_value_pointer_1 = value.&       # failure!
+  $failure_value_pointer_2 = value_pointer # failure!
 
-  mut success_value_pointer_value_1 = value               // clone success!
-  mut success_value_pointer_value_2 = value_pointer_value // clone success!
+  $success_value_pointer_value_1 = value               # clone success!
+  $success_value_pointer_value_2 = value_pointer_value # clone success!
 
-  mut new_value = value_pointer_value // `false`
-  new_value_pointer.* = true
-  mut new_value_pointer_value = new_value_pointer.* // `true`
+  $new_value = value_pointer_value # `false`
+  $new_value_pointer.* = true
+  $new_value_pointer_value = $new_value_pointer.* # `true`
 
-  output(value)                   // `false`
-  output(value_pointer)           // `0x7ffd0d8e29fc`
-  output(value_pointer_value)     // `false`
+  output(value)                   # `false`
+  output(value_pointer)           # `0x7ffd0d8e29fc`
+  output(value_pointer_value)     # `false`
 
-  output(new_value)               // `true`
-  output(new_value_pointer)       // `0x6b3f1a8d6c0f`
-  output(new_value_pointer_value) // `true`
-fn;
+  output($new_value)               # `true`
+  output($new_value_pointer)       # `0x6b3f1a8d6c0f`
+  output($new_value_pointer_value) # `true`
+}
 
-let anonymousFn = fn = 0
+anonymousFn = () = 0
 
-let x = 1
-fn closureFn() = x
+x = 1
+closureFn() = x
 
-fn double_fn_1(x: Int): Int = x * x
-fn double_fn_2(x: Int): Int return x * x fn;
+double_fn_1(x: Int): Int = x * x
+fn double_fn_2(x: Int): Int { return x * x }
 ```
 
 ---
@@ -238,37 +237,34 @@ fn double_fn_2(x: Int): Int return x * x fn;
 ## Example
 
 ```flos
-type Io = @use("flos:io")
-type String = Array[UInt8: _]
+Io = @import("flos:io")
+{ context } = @import("flos:context")
+String = Array[UInt8: _]
 
-extend String`
-  type Self = @self()
+extend String {
+  context = @context()
 
-  fn String(value: Array[UInt8: _]): Self
+  fn String(value: Array[UInt8: _]): String {
     return value
-  fn;
+  }
 
-  fn toBool(): Bool
-    mut result
+  fn toBool(): Bool {
+    return when(context) {
+      case "" = false
+      else = true
+    }
+  }
 
-    when(self)
-      case "" result = false
-      else result = true
-    when;
+  fn toInt(): Int {
+    return context.getLength()
+  }
+}
 
-    return result
-  fn;
+string = String("ok")
+bool = string.toBool()
+int = string.toInt()
 
-  fn toInt(): Int
-    return self.getLength()
-  fn;
-extend;
-
-let string = String("ok")
-let bool = string.toBool()
-let int = string.toInt()
-
-Io.output(string) // "ok"
-Io.output(bool)   // `true`
-Io.output(int)    // `2`
+Io.output(string) # "ok"
+Io.output(bool)   # `true`
+Io.output(int)    # `2`
 ```
