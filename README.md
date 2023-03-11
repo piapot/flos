@@ -115,8 +115,8 @@ Document comment start with a `#!`, and document comment can only be placed in f
 ```flos
 "string \"\t\r\n\xff\u{10ffff}\\" # `Array[UInt8: 19]` Single-line string
 r"\t\r\n"                         # `Array[UInt8: 3]` Raw string
-f"(1 + 1)"                       # `Array[UInt8: 1]` Format string
-t"(props.item)"                  # `Array[Array[UInt8: 0], Array[Unknown]]` Template string
+f"(1 + 1)"                        # `Array[UInt8: 1]` Format string
+t"(props.item)"                   # `Array[Array[UInt8: 0], Array[Unknown]]` Template string
 ```
 
 ---
@@ -144,10 +144,10 @@ $value = true # success!
 ## Example
 
 ```flos
-Ip = {
+enum Ip
   v4(String) = "v4",
   v6(String) = "v6",
-}
+enum;
 
 Ip.v4 # "v4"
 Ip.v6 # "v6"
@@ -168,11 +168,11 @@ $ip = .v6("::1")  # "::1"
 ```flos
 String = Array[UInt: _]
 
-User = {
+struct User
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-}
+struct;
 
 user_1 = User.{
   name = "user_1",
@@ -191,13 +191,11 @@ $user_2.active = true
 ## Example
 
 ```flos
+{ output } = @import("flos:io")
 { pointer } = @import("flos:pointer")
 
 @[pointer]
-fn main() {
-  Io = @import("flos:io")
-  { output } = Io
-
+function main()
   value = false
   value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
   value_pointer_value: Bool = value_pointer.* # `false`
@@ -212,22 +210,19 @@ fn main() {
   $new_value_pointer.* = true
   $new_value_pointer_value = $new_value_pointer.* # `true`
 
-  output(value)                   # `false`
-  output(value_pointer)           # `0x7ffd0d8e29fc`
-  output(value_pointer_value)     # `false`
+  output(value)               # `false`
+  output(value_pointer)       # `0x7ffd0d8e29fc`
+  output(value_pointer_value) # `false`
 
   output($new_value)               # `true`
   output($new_value_pointer)       # `0x6b3f1a8d6c0f`
   output($new_value_pointer_value) # `true`
-}
-
-anonymousFn = () = 0
+function;
 
 x = 1
 closureFn() = x
-
 double_fn_1(x: Int): Int = x * x
-fn double_fn_2(x: Int): Int { return x * x }
+function double_fn_2(x: Int): Int return x * x function;
 ```
 
 ---
@@ -241,24 +236,24 @@ Io = @import("flos:io")
 { context } = @import("flos:context")
 String = Array[UInt8: _]
 
-extend String {
+extend String
   context = @context()
 
-  fn String(value: Array[UInt8: _]): String {
+  function String(value: Array[UInt8: _]): String
     return value
-  }
+  function;
 
-  fn toBool(): Bool {
-    return when(context) {
+  function toBool(): Bool
+    return when(context)
       case "" = false
       else = true
-    }
-  }
+    when;
+  function;
 
-  fn toInt(): Int {
+  function toInt(): Int
     return context.getLength()
-  }
-}
+  function;
+extend
 
 string = String("ok")
 bool = string.toBool()
