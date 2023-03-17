@@ -25,18 +25,18 @@ Set = { String, Number}     # { "ok", "good", 1, 2, 3 }
 Union = "ok" or "good" or "other"
 Format = t"#(Union)_#(Union)_f" # "ok_ok_f", "ok_good_f", ..., "other_other_f"
 
-enum Enumeration
+Enumeration = {
   name(String) = "enum",
   length(Number) = 2,
-enum;
+}
 
-struct Structure
+Structure = {
   name: String = "struct",
   length: Number = 2,
-struct;
+}
 
-struct Interface
+Interface = {
   getNumber(): Number = 1,
   getString(): String = "ok",
-struct;
+}
 ```

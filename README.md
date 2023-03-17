@@ -25,7 +25,7 @@ File comment start with a `#?` mark, and file comment can only be placed in fron
 
 ## Document comment
 
-Document comment start with a `#!`, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
+Document comment start with a `#!`, and document comment can only be placed in front of the api (such as structure, enumeration or fn, etc).
 
 ```flos
 #! This is a document comment.
@@ -107,7 +107,7 @@ Document comment start with a `#!`, and document comment can only be placed in f
 - Symbol literal
 
 ```flos
-'symbol' # Symbol
+'symbol # Symbol
 ```
 
 - String literal
@@ -144,10 +144,10 @@ $value = true # success!
 ## Example
 
 ```flos
-enum Ip
+Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
-enum;
+}
 
 Ip.v4 # "v4"
 Ip.v6 # "v6"
@@ -166,18 +166,21 @@ $ip = .v6("::1")  # "::1"
 ## Example
 
 ```flos
-String = Array[UInt: _]
+String = {
+  value: Array[UInt: _] = [],
+  length: UInt = 0,
+}
 
-struct User
+User = {
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-struct;
+}
 
 user_1 = User.{
-  name = "user_1",
-  email = "user_1@example.com",
-  active = true,
+  name: "user_1",
+  email: "user_1@example.com",
+  active: true,
 }
 
 $user_2: User = .{}
@@ -191,11 +194,11 @@ $user_2.active = true
 ## Example
 
 ```flos
-{ output } = @import("flos:io")
-{ pointer } = @import("flos:pointer")
+{ Io, #pointer } = @import("std")
+{ output } = Io
 
-@[pointer]
-function main()
+#pointer
+fn main()
   value = false
   value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
   value_pointer_value: Bool = value_pointer.* # `false`
@@ -217,12 +220,14 @@ function main()
   output($new_value)               # `true`
   output($new_value_pointer)       # `0x6b3f1a8d6c0f`
   output($new_value_pointer_value) # `true`
-function;
 
-x = 1
-closureFn() = x
-double_fn_1(x: Int): Int = x * x
-function double_fn_2(x: Int): Int return x * x function;
+  x = 1
+  closureFn() = x
+  double_fn_1(x: Int): Int = x * x
+  fn double_fn_2(x: Int): Int return x * x fn;
+  fn x * x fn; # Anonymous function
+  do x * x do; # Immediate function
+fn;
 ```
 
 ---
@@ -232,30 +237,32 @@ function double_fn_2(x: Int): Int return x * x function;
 ## Example
 
 ```flos
-Io = @import("flos:io")
-{ context } = @import("flos:context")
-String = Array[UInt8: _]
+{ Io, @self } = @import("std")
+String = {
+  value: Array[UInt8: _] = [],
+  length: UInt = 0,
+}
 
 extend String
-  context = @context()
+  $self = @self()
 
-  function String(value: Array[UInt8: _]): String
-    return value
-  function;
+  fn new(value: Array[UInt8: _]): String
+    return String.{ value: value }
+  fn;
 
-  function toBool(): Bool
-    return when(context)
-      case "" = false
-      else = true
+  fn toBool(): Bool
+    return when $self
+      case "" false
+      else true
     when;
-  function;
+  fn;
 
-  function toInt(): Int
-    return context.getLength()
-  function;
-extend
+  fn toInt(): Int
+    return $self.length
+  fn;
+extend;
 
-string = String("ok")
+string = String.new("ok")
 bool = string.toBool()
 int = string.toInt()
 
