@@ -16,20 +16,20 @@ A single line comment begins with a `#` sign.
 
 ## File comment
 
-File comment start with a `#?` mark, and file comment can only be placed in front of the file.
+File comment start with a `#!` mark, and file comment can only be placed in front of the file.
 
 ```flos
-#? This is a file comment.
-#? You can write more lines.
+#! This is a file comment.
+#! You can write more lines.
 ```
 
 ## Document comment
 
-Document comment start with a `#!`, and document comment can only be placed in front of the api (such as structure, enumeration or fn, etc).
+Document comment start with a `#?`, and document comment can only be placed in front of the api (such as structure, enumeration or fn, etc).
 
 ```flos
-#! This is a document comment.
-#! You can write more lines.
+#? This is a document comment.
+#? You can write more lines.
 ```
 
 ---
@@ -77,31 +77,31 @@ Document comment start with a `#!`, and document comment can only be placed in f
 - Array literal
 
 ```flos
-[1, 2, 3] # `Array[Int]`
+[1, 2, 3] # `[Int...]`
 ```
 
 - Vector literal
 
 ```flos
-[1, 2, 3] # `Array[Int: 3]`
+[1, 2, 3] # `[Int: 3]`
 ```
 
 - Tuple literal
 
 ```flos
-[1, 2, "3"] # `Array[Int: 2, String]`
+[1, 2, "3"] # `[Int: 2, String]`
 ```
 
 - Map literal
 
 ```flos
-{ "name": "map", "value": 0 } # `Map[String, String or Int]`
+{ "name": "map", "value": 0 } # `[[String]: String or Int]`
 ```
 
 - Set literal
 
 ```flos
-{ "success", "failure", 1, 0 } # `Map[String or Int]`
+{ "success", "failure", 1, 0 } # `[String or Int]`
 ```
 
 - Symbol literal
@@ -113,10 +113,10 @@ Document comment start with a `#!`, and document comment can only be placed in f
 - String literal
 
 ```flos
-"string \"\t\r\n\xff\u{10ffff}\\" # `Array[UInt8: 19]` Single-line string
-r"\t\r\n"                         # `Array[UInt8: 3]` Raw string
-f"(1 + 1)"                        # `Array[UInt8: 1]` Format string
-t"(props.item)"                   # `Array[Array[UInt8: 0], Array[Unknown]]` Template string
+"string \"\t\r\n\xff\u{10ffff}\\" # `[UInt8: 19]` Single-line string
+r"\t\r\n"                         # `[UInt8: 3]` Raw string
+f"(1 + 1)"                        # `[UInt8: 1]` Format string
+t"(props.item)"                   # `[[UInt8: 0], [Unknown...]]` Template string
 ```
 
 ---
@@ -167,7 +167,7 @@ $ip = .v6("::1")  # "::1"
 
 ```flos
 String = {
-  value: Array[UInt: _] = [],
+  value: [UInt...] = [],
   length: UInt = 0,
 }
 
@@ -194,10 +194,10 @@ $user_2.active = true
 ## Example
 
 ```flos
-{ Io, #pointer } = @import("std")
+{ Io, pointer } = @import("std")
 { output } = Io
 
-#pointer
+#[pointer()]
 fn main()
   value = false
   value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
@@ -237,7 +237,7 @@ fn;
 ## Example
 
 ```flos
-{ Io, @self } = @import("std")
+{ Io, self } = @import("std")
 String = {
   value: Array[UInt8: _] = [],
   length: UInt = 0,
