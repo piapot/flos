@@ -45,17 +45,6 @@ Document comment start with a `#?`, and document comment can only be placed in f
 | Float            | `Float16`, `Float32`, `Float64`, `Float80`, `Float128`, `Float` |
 | Boolean          | `Bool`                                                          |
 
-## Complex type
-
-- Array
-- Map
-- Symbol
-
-## Custom type
-
-- enum
-- struct
-
 ## Literal
 
 - Integer literal
@@ -95,13 +84,13 @@ Document comment start with a `#?`, and document comment can only be placed in f
 - Map literal
 
 ```flos
-{ "name": "map", "value": 0 } # `[[String]: String or Int]`
+{ "name": "map", "value": 0 } # `{String: String or Int}`
 ```
 
 - Set literal
 
 ```flos
-{ "success", "failure", 1, 0 } # `[String or Int]`
+{ "success", "failure", 1, 0 } # `{String or Int}`
 ```
 
 - Symbol literal
@@ -114,9 +103,8 @@ Document comment start with a `#?`, and document comment can only be placed in f
 
 ```flos
 "string \"\t\r\n\xff\u{10ffff}\\" # `[UInt8: 19]` Single-line string
-r"\t\r\n"                         # `[UInt8: 3]` Raw string
-f"(1 + 1)"                        # `[UInt8: 1]` Format string
-t"(props.item)"                   # `[[UInt8: 0], [Unknown...]]` Template string
+#"\t\r\n"#                        # `[UInt8: 3]` Raw string
+"#(props.item)"                  # `[[UInt8: 0], [Unknown...]]` Template string
 ```
 
 ---
@@ -194,10 +182,9 @@ $user_2.active = true
 ## Example
 
 ```flos
-{ Io, pointer } = @import("std")
-{ output } = Io
+{Io, pointer} = Global
 
-#[pointer()]
+#[pointer]
 fn main()
   value = false
   value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
@@ -213,6 +200,8 @@ fn main()
   $new_value_pointer.* = true
   $new_value_pointer_value = $new_value_pointer.* # `true`
 
+  { output } = Io
+
   output(value)               # `false`
   output(value_pointer)       # `0x7ffd0d8e29fc`
   output(value_pointer_value) # `false`
@@ -225,8 +214,6 @@ fn main()
   closureFn() = x
   double_fn_1(x: Int): Int = x * x
   fn double_fn_2(x: Int): Int return x * x fn;
-  fn x * x fn; # Anonymous function
-  do x * x do; # Immediate function
 fn;
 ```
 
@@ -237,16 +224,17 @@ fn;
 ## Example
 
 ```flos
-{ Io, self } = @import("std")
+{Io, self} = Global
+
 String = {
-  value: Array[UInt8: _] = [],
+  value: Array[UInt8...] = [],
   length: UInt = 0,
 }
 
 extend String
   $self = @self()
 
-  fn new(value: Array[UInt8: _]): String
+  fn new(value: Array[UInt8...]): String
     return String.{ value: value }
   fn;
 
