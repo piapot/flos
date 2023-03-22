@@ -38,12 +38,12 @@ Document comment start with a `#?`, and document comment can only be placed in f
 
 ## Primitive type
 
-|                  | Name                                                            |
-| :--------------- | :-------------------------------------------------------------- |
-| Integer          | `Int8`, `Int16`, `Int32`, `Int64`, `Int128`, `Int`              |
-| Unsigned integer | `UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`, `UInt`        |
-| Float            | `Float16`, `Float32`, `Float64`, `Float80`, `Float128`, `Float` |
-| Boolean          | `Bool`                                                          |
+| Type             | Name      |
+| :--------------- | :-------- |
+| Integer          | `Int`     |
+| Unsigned integer | `Uint`    |
+| Float            | `Float`   |
+| Boolean          | `Boolean` |
 
 ## Literal
 
@@ -93,18 +93,12 @@ Document comment start with a `#?`, and document comment can only be placed in f
 { "success", "failure", 1, 0 } # `{String or Int}`
 ```
 
-- Symbol literal
-
-```flos
-'symbol # Symbol
-```
-
 - String literal
 
 ```flos
-"string \"\t\r\n\xff\u{10ffff}\\" # `[UInt8: 19]` Single-line string
-#"\t\r\n"#                        # `[UInt8: 3]` Raw string
-"#(props.item)"                  # `[[UInt8: 0], [Unknown...]]` Template string
+"string \"\t\r\n\xff\u{10ffff}\\" # `[Uint8: 19]` Single-line string
+#"\t\r\n"#                        # `[Uint8: 3]` Raw string
+"#(props.item)"                   # `[[Uint8: 0], [Unknown...]]` Template string
 ```
 
 ---
@@ -127,15 +121,15 @@ $value = true # success!
 
 ---
 
-# Enumeration
+# Enum
 
 ## Example
 
 ```flos
-Ip = {
+enum Ip
   v4(String) = "v4",
   v6(String) = "v6",
-}
+enum;
 
 Ip.v4 # "v4"
 Ip.v6 # "v6"
@@ -143,27 +137,27 @@ Ip.v6 # "v6"
 ip_v4 = Ip.v4("127.0.0.1") # "127.0.0.1"
 ip_v6 = Ip.v6("::1")       # "::1"
 
-$ip: Ip = .v4 # "v4"
+$ip: Ip = .v4     # "v4"
 $ip = .v6("::1")  # "::1"
 ```
 
 ---
 
-# Structure
+# Struct
 
 ## Example
 
 ```flos
-String = {
-  value: [UInt...] = [],
-  length: UInt = 0,
-}
+struct String
+  value: [Uint...] = [],
+  length: Uint = 0,
+struct;
 
-User = {
+struct User
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-}
+struct;
 
 user_1 = User.{
   name: "user_1",
@@ -177,15 +171,46 @@ $user_2.active = true
 
 ---
 
+# Interface
+
+## Example
+
+```flos
+{self, public} = import.Lib
+
+String = [Uint8...]
+
+interface StringAble
+  fromUint8(value: String): String,
+  toString(): String,
+interface;
+
+extend StringAble
+  $self = @self()
+
+  @[public]
+  function fromUint8(value: String): String
+    # ...
+  function;
+
+  @[public]
+  function toString(): String
+    # ...
+  function;
+extend;
+```
+
+---
+
 # Function
 
 ## Example
 
 ```flos
-{Io, pointer} = Global
+{Io, public, pointer} = import.Lib
 
-#[pointer]
-fn main()
+@[public, pointer]
+function main()
   value = false
   value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
   value_pointer_value: Bool = value_pointer.* # `false`
@@ -213,8 +238,7 @@ fn main()
   x = 1
   closureFn() = x
   double_fn_1(x: Int): Int = x * x
-  fn double_fn_2(x: Int): Int return x * x fn;
-fn;
+function;
 ```
 
 ---
@@ -224,30 +248,34 @@ fn;
 ## Example
 
 ```flos
-{Io, self} = Global
+{Io, public, self} = import.Lib
 
-String = {
-  value: Array[UInt8...] = [],
-  length: UInt = 0,
-}
+@[public]
+struct String
+  value: Array[Uint8...] = [],
+  length: Uint = 0,
+struct;
 
 extend String
   $self = @self()
 
-  fn new(value: Array[UInt8...]): String
+  @[public]
+  function new(value: Array[Uint8...]): String
     return String.{ value: value }
-  fn;
+  function;
 
-  fn toBool(): Bool
+  @[public]
+  function toBool(): Bool
     return when $self
       case "" false
       else true
     when;
-  fn;
+  function;
 
-  fn toInt(): Int
+  @[public]
+  function toInt(): Int
     return $self.length
-  fn;
+  function;
 extend;
 
 string = String.new("ok")
