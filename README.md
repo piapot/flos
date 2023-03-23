@@ -176,7 +176,7 @@ $user_2.active = true
 ## Example
 
 ```flos
-{self, public} = import.Lib
+{public} = import.Lib
 
 String = [Uint8...]
 
@@ -186,8 +186,6 @@ interface StringAble
 interface;
 
 extend StringAble
-  $self = @self()
-
   @[public]
   function fromUint8(value: String): String
     # ...
@@ -257,7 +255,7 @@ struct String
 struct;
 
 extend String
-  $self = @self()
+  Self = @self()
 
   @[public]
   function new(value: Array[Uint8...]): String
@@ -265,16 +263,16 @@ extend String
   function;
 
   @[public]
-  function toBool(): Bool
-    return when $self
+  function toBool(self: Self): Bool
+    return when self
       case "" false
       else true
     when;
   function;
 
   @[public]
-  function toInt(): Int
-    return $self.length
+  function toInt(self: Self): Int
+    return self.length
   function;
 extend;
 
