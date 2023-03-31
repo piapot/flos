@@ -25,7 +25,7 @@ File comment start with a `#!` mark, and file comment can only be placed in fron
 
 ## Document comment
 
-Document comment start with a `#?`, and document comment can only be placed in front of the api (such as structure, enumeration or fn, etc).
+Document comment start with a `#?`, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
 
 ```flos
 #? This is a document comment.
@@ -126,10 +126,10 @@ $value = true # success!
 ## Example
 
 ```flos
-enum Ip
+Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
-enum;
+}
 
 Ip.v4 # "v4"
 Ip.v6 # "v6"
@@ -148,16 +148,16 @@ $ip = .v6("::1")  # "::1"
 ## Example
 
 ```flos
-struct String
+String = {
   value: [Uint...] = [],
   length: Uint = 0,
-struct;
+}
 
-struct User
+User = {
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-struct;
+}
 
 user_1 = User.{
   name: "user_1",
@@ -176,14 +176,14 @@ $user_2.active = true
 ## Example
 
 ```flos
-{public} = import.Lib
+{public} = Global
 
 String = [Uint8...]
 
-interface StringAble
+StringAble = {
   fromUint8(value: String): String,
   toString(): String,
-interface;
+}
 
 extend StringAble
   @[public]
@@ -205,7 +205,7 @@ extend;
 ## Example
 
 ```flos
-{Io, public, pointer} = import.Lib
+{Io, public, pointer} = Global
 
 @[public, pointer]
 function main()
@@ -235,7 +235,7 @@ function main()
 
   x = 1
   closureFn() = x
-  double_fn_1(x: Int): Int = x * x
+  doubleFn(x: Int): Int = x * x
 function;
 ```
 
@@ -246,13 +246,13 @@ function;
 ## Example
 
 ```flos
-{Io, public, self} = import.Lib
+{Io, public, self} = Global
 
-@[public]
-struct String
+@[public()]
+String = {
   value: Array[Uint8...] = [],
   length: Uint = 0,
-struct;
+}
 
 extend String
   Self = @self()
