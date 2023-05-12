@@ -2,283 +2,236 @@
 
 A simple script language.
 
----
+## Comment
 
-# Comment
+### Single-line comment
 
-## Single-line comment
-
-A single line comment begins with a `#` sign.
+A single line comment begins with a `;` sign.
 
 ```flos
-# This is a single-line comment.
+; This is a single-line comment.
 ```
 
-## File comment
+## Data Type
 
-File comment start with a `#!` mark, and file comment can only be placed in front of the file.
+### Primitive type
 
-```flos
-#! This is a file comment.
-#! You can write more lines.
-```
+1. Integer
+2. Unsigned integer
+3. Float
+4. Boolean
 
-## Document comment
-
-Document comment start with a `#?`, and document comment can only be placed in front of the api (such as structure, enumeration or function, etc).
-
-```flos
-#? This is a document comment.
-#? You can write more lines.
-```
-
----
-
-# Data Type
-
-## Primitive type
-
-| Type             | Name      |
-| :--------------- | :-------- |
-| Integer          | `Int`     |
-| Unsigned integer | `Uint`    |
-| Float            | `Float`   |
-| Boolean          | `Boolean` |
-
-## Literal
+### Literal
 
 - Integer literal
 
 ```flos
--0_9_8_7 # Decimal int
--0xf_e_d # Hex int
--0o7_6_5 # Octal int
--0b1_0_1 # Binary int
+-0_9_8_7; Decimal int
+-0xf_e_d; Hex int
+-0o7_6_5; Octal int
+-0b1_0_1; Binary int
 ```
 
 - Float literal
 
 ```flos
--9_8_7.6_5   # Float
--9_8_7.0e+65 # Floating point
+-9_8_7.6_5; Float
+-9_8_7.0e+65; Floating point
 ```
 
 - Array literal
 
 ```flos
-[1, 2, 3] # `[Int...]`
+[1, 2, 3]; `[...Int]`;
 ```
 
 - Vector literal
 
 ```flos
-[1, 2, 3] # `[Int: 3]`
+[1, 2, 3]; `[Int: 3]`;
 ```
 
 - Tuple literal
 
 ```flos
-[1, 2, "3"] # `[Int: 2, String]`
+[1, 2, "3"]; `[Int: 2, String]`;
 ```
 
 - Map literal
 
 ```flos
-{ "name": "map", "value": 0 } # `{String: String or Int}`
+{"name": "map", "value": 0}; `{String: String or Int}`
 ```
 
 - Set literal
 
 ```flos
-{ "success", "failure", 1, 0 } # `{String or Int}`
+{"success", "failure", 1, 0}; `{String or Int}`
 ```
 
 - String literal
 
 ```flos
-"string \"\t\r\n\xff\u{10ffff}\\" # `[Uint8: 19]` Single-line string
-#"\t\r\n"#                        # `[Uint8: 3]` Raw string
-"#(props.item)"                   # `[[Uint8: 0], [Unknown...]]` Template string
+"string \(props.item)\"\t\r\n\xff\u{10ffff}\\"; `[Uint8: _]` String
 ```
 
----
-
-# Assignment
+## Assignment
 
 - Bind immutable variable
 
 ```flos
-value = false
-value = true # failure!
+const value = false;
+value = true; failure!
 ```
 
 - Bind mutable variable
 
 ```flos
-$value = false
-$value = true # success!
+let value = false;
+value = true; success!
 ```
 
----
+## Enum
 
-# Enum
-
-## Example
+### Enum Example
 
 ```flos
-Ip = {
+type Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
 }
 
-Ip.v4 # "v4"
-Ip.v6 # "v6"
+Ip.v4; "v4"
+Ip.v6; "v6"
 
-ip_v4 = Ip.v4("127.0.0.1") # "127.0.0.1"
-ip_v6 = Ip.v6("::1")       # "::1"
+const ip_v4 = Ip.v4("127.0.0.1"); "127.0.0.1"
+const ip_v6 = Ip.v6("::1"); "::1"
 
-$ip: Ip = .v4     # "v4"
-$ip = .v6("::1")  # "::1"
+let ip: Ip = .v4; "v4"
+ip = .v6("::1"); "::1"
 ```
 
----
+## Struct
 
-# Struct
-
-## Example
+### Struct Example
 
 ```flos
-String = {
-  value: [Uint...] = [],
+type String = {
+  value: [...Uint] = [],
   length: Uint = 0,
-}
+};
 
-User = {
+type User = {
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
-}
+};
 
-user_1 = User.{
+const user_1 = User.{
   name: "user_1",
   email: "user_1@example.com",
   active: true,
-}
+};
 
-$user_2: User = .{}
-$user_2.active = true
+let user_2: User = .{};
+user_2.active = true;
 ```
 
----
+## Interface
 
-# Interface
-
-## Example
+### Interface Example
 
 ```flos
-{public} = Global
+type String = [...Uint8];
 
-String = [Uint8...]
+type StringAble = {
+  fromUint8(value: String) -> String,
+  toString() -> String,
+};
 
-StringAble = {
-  fromUint8(value: String): String,
-  toString(): String,
-}
-
-extend StringAble
-  @[public]
-  function fromUint8(value: String): String
-    # ...
+expand StringAble:
+  @export function fromUint8(value: String) -> String:
+    ; ...
   function;
 
-  @[public]
-  function toString(): String
-    # ...
+  @export function toString() -> String:
+    ; ...
   function;
-extend;
+expand;
 ```
 
----
+## Function
 
-# Function
-
-## Example
+### Function Example
 
 ```flos
-{Io, public, pointer} = Global
+type {Io} = Global;
 
-@[public, pointer]
-function main()
-  value = false
-  value_pointer: Pointer[Bool] = value.&      # `0x7ffd0d8e29fc`
-  value_pointer_value: Bool = value_pointer.* # `false`
+@export function main():
+  const value = false;
+  const value_pointer: Pointer(Boolean) = value.&; `0x7ffd0d8e29fc`
+  const value_pointer_value: Boolean = value_pointer.*; `false`
 
-  $failure_value_pointer_1 = value.&       # failure!
-  $failure_value_pointer_2 = value_pointer # failure!
+  let failure_value_pointer_1 = value.&; failure!
+  let failure_value_pointer_2 = value_pointer; failure!
 
-  $success_value_pointer_value_1 = value               # clone success!
-  $success_value_pointer_value_2 = value_pointer_value # clone success!
+  let success_value_pointer_value_1 = value; clone success!
+  let success_value_pointer_value_2 = value_pointer_value; clone success!
 
-  $new_value = value_pointer_value # `false`
-  $new_value_pointer.* = true
-  $new_value_pointer_value = $new_value_pointer.* # `true`
+  let new_value = value_pointer_value; `false`
+  new_value_pointer.* = true
+  new_value_pointer_value = $new_value_pointer.*; `true`
 
-  { output } = Io
+  const {output} = Io;
 
-  output(value)               # `false`
-  output(value_pointer)       # `0x7ffd0d8e29fc`
-  output(value_pointer_value) # `false`
+  output(value); `false`;
+  output(value_pointer); `0x7ffd0d8e29fc`
+  output(value_pointer_value); `false`
 
-  output($new_value)               # `true`
-  output($new_value_pointer)       # `0x6b3f1a8d6c0f`
-  output($new_value_pointer_value) # `true`
+  output($new_value); `true`;
+  output($new_value_pointer); `0x6b3f1a8d6c0f`
+  output($new_value_pointer_value); `true`
 
-  x = 1
-  closureFn() = x
-  doubleFn(x: Int): Int = x * x
+  const x = 1;
+  const closureFn() = x;
+  const doubleFn(x: Int) -> Int = x * x;
 function;
 ```
 
----
+## Expand
 
-# Extend
-
-## Example
+### Expand Example
 
 ```flos
-{Io, public, self} = Global
+type {Io} = Global;
 
-@[public()]
-String = {
-  value: Array[Uint8...] = [],
+@export type String = {
+  value: Array[...Uint8] = [],
   length: Uint = 0,
-}
+};
 
-extend String
-  Self = @self()
+expand String:
+  const it = @it();
 
-  @[public]
-  function new(value: Array[Uint8...]): String
-    return String.{ value: value }
+  @export function new(value: Array[...Uint8]) -> String:
+    return String.{ value: value };
   function;
 
-  @[public]
-  function toBool(self: Self): Bool
-    return when self
-      case "" false
-      else true
-    when;
+  @export function toBool() -> Boolean:
+    return match it:
+    => "": false;
+    => _: true;
+    match;
   function;
 
-  @[public]
-  function toInt(self: Self): Int
-    return self.length
+  @export function toInt() -> Int:
+    return it.length;
   function;
-extend;
+expand;
 
-string = String.new("ok")
-bool = string.toBool()
-int = string.toInt()
+const string = String.new("ok")
+const bool = string.toBool()
+const int = string.toInt()
 
 Io.output(string) # "ok"
 Io.output(bool)   # `true`
