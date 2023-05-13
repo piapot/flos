@@ -42,19 +42,19 @@ A single line comment begins with a `;` sign.
 - Array literal
 
 ```flos
-[1, 2, 3]; `[...Int]`;
+[1, 2, 3]; `[Int...]`
 ```
 
 - Vector literal
 
 ```flos
-[1, 2, 3]; `[Int: 3]`;
+[1, 2, 3]; `[Int: 3]`
 ```
 
 - Tuple literal
 
 ```flos
-[1, 2, "3"]; `[Int: 2, String]`;
+[1, 2, "3"]; `[Int: 2, String]`
 ```
 
 - Map literal
@@ -99,7 +99,7 @@ value = true; success!
 type Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
-}
+};
 
 Ip.v4; "v4"
 Ip.v6; "v6"
@@ -117,7 +117,7 @@ ip = .v6("::1"); "::1"
 
 ```flos
 type String = {
-  value: [...Uint] = [],
+  value: [Uint...] = [],
   length: Uint = 0,
 };
 
@@ -142,7 +142,7 @@ user_2.active = true;
 ### Interface Example
 
 ```flos
-type String = [...Uint8];
+type String = [Uint8...];
 
 type StringAble = {
   fromUint8(value: String) -> String,
@@ -150,7 +150,7 @@ type StringAble = {
 };
 
 expand StringAble:
-  @export function fromUint8(value: String) -> String:
+  @export function from(value: Unknown) -> String:
     ; ...
   function;
 
@@ -206,14 +206,14 @@ function;
 type {Io} = Global;
 
 @export type String = {
-  value: Array[...Uint8] = [],
+  value: [Uint8: _] = [],
   length: Uint = 0,
 };
 
 expand String:
   const it = @it();
 
-  @export function new(value: Array[...Uint8]) -> String:
+  @export function new(value: [Uint8: _]) -> String:
     return String.{ value: value };
   function;
 
@@ -229,11 +229,11 @@ expand String:
   function;
 expand;
 
-const string = String.new("ok")
-const bool = string.toBool()
-const int = string.toInt()
+const string = String.new("ok");
+const bool = string.toBool();
+const int = string.toInt();
 
-Io.output(string) # "ok"
-Io.output(bool)   # `true`
-Io.output(int)    # `2`
+Io.output(string); "ok"
+Io.output(bool); `true`
+Io.output(int); `2`
 ```
