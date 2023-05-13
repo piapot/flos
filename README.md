@@ -101,14 +101,14 @@ type Ip = {
   v6(String) = "v6",
 };
 
-Ip.v4; "v4"
-Ip.v6; "v6"
+Ip.{v4}; "v4"
+Ip.{v6}; "v6"
 
-const ip_v4 = Ip.v4("127.0.0.1"); "127.0.0.1"
-const ip_v6 = Ip.v6("::1"); "::1"
+const ip_v4 = Ip.{v4}("127.0.0.1"); "127.0.0.1"
+const ip_v6 = Ip.{v6}("::1"); "::1"
 
-let ip: Ip = .v4; "v4"
-ip = .v6("::1"); "::1"
+let ip: Ip = .{v4}; "v4"
+ip = .{v6}("::1"); "::1"
 ```
 
 ## Struct
@@ -117,7 +117,7 @@ ip = .v6("::1"); "::1"
 
 ```flos
 type String = {
-  value: [Uint...] = [],
+  value: [Uint8: _] = [],
   length: Uint = 0,
 };
 
@@ -142,8 +142,6 @@ user_2.active = true;
 ### Interface Example
 
 ```flos
-type String = [Uint8...];
-
 type StringAble = {
   fromUint8(value: String) -> String,
   toString() -> String,
@@ -180,7 +178,7 @@ type {Io} = Global;
 
   let new_value = value_pointer_value; `false`
   new_value_pointer.* = true
-  new_value_pointer_value = $new_value_pointer.*; `true`
+  new_value_pointer_value = new_value_pointer.*; `true`
 
   const {output} = Io;
 
@@ -188,9 +186,9 @@ type {Io} = Global;
   output(value_pointer); `0x7ffd0d8e29fc`
   output(value_pointer_value); `false`
 
-  output($new_value); `true`;
-  output($new_value_pointer); `0x6b3f1a8d6c0f`
-  output($new_value_pointer_value); `true`
+  output(new_value); `true`;
+  output(new_value_pointer); `0x6b3f1a8d6c0f`
+  output(new_value_pointer_value); `true`
 
   const x = 1;
   const closureFn() = x;
@@ -205,35 +203,39 @@ function;
 ```flos
 type {Io} = Global;
 
-@export type String = {
-  value: [Uint8: _] = [],
-  length: Uint = 0,
+@export type MyBoolean = {
+  false = 0,
+  true = 1,
 };
 
-expand String:
+@export type MyBooleanAble = {
+  toString() -> String,
+};
+
+expand MyBoolean:
+  combine MyBooleanAble;
+
+  type It = @It();
   const it = @it();
 
-  @export function new(value: [Uint8: _]) -> String:
-    return String.{ value: value };
-  function;
-
-  @export function toBool() -> Boolean:
-    return match it:
-    => "": false;
-    => _: true;
+  @export function new(value: Boolean = false) -> It:
+    return match value:
+    => false: .false;
+    => true: .true;
     match;
   function;
 
-  @export function toInt() -> Int:
-    return it.length;
+  @export function toString() -> String:
+    return match it:
+    => .false: "false";
+    => .true: "true";
+    match;
   function;
 expand;
 
-const string = String.new("ok");
-const bool = string.toBool();
-const int = string.toInt();
+const myBoolean = MyBoolean.new(true);
+const str = myBoolean.toString();
 
-Io.output(string); "ok"
-Io.output(bool); `true`
-Io.output(int); `2`
+Io.output(myBoolean); `MyBoolean.{true}`
+Io.output(str); `true`
 ```
