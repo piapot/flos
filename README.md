@@ -8,6 +8,16 @@ A simple script language.
 
 A single line comment begins with a `;` sign.
 
+- Grammar
+
+```rs
+single_line_comment = {
+  ";" ~ (ANY ! "\n")*
+}
+```
+
+- Example
+
 ```flos
 ; This is a single-line comment.
 ```
@@ -21,55 +31,131 @@ A single line comment begins with a `;` sign.
 3. Float
 4. Boolean
 
-### Literal
+### Integer Literal
 
-- Integer literal
+- Grammar
 
-```flos
--0_9_8_7; Decimal int
--0xf_e_d; Hex int
--0o7_6_5; Octal int
--0b1_0_1; Binary int
+```rs
+decimal_integer = ("+" | "-")? ~ "0" | NONZERO_DIGIT ~ ("_"? ~ DIGIT)*;
+decimal_scientific_notation = decimal_integer ~ ("e" | "E") ~ ("+" | "-")? ~ DIGIT;
+hex_integer = ("+" | "-")? ~ "0x" ~ HEX_DIGIT ~ "_"? ~ (HEX_DIGIT)*;
+octonary_integer = ("+" | "-")? ~ "0o" ~ OCTONARY_DIGIT ~ ("_"? ~ OCTONARY_DIGIT)*;
+binary_integer = ("+" | "-")? ~ "0b" ~ BINARY_DIGIT ~ ("_"? ~ BINARY_DIGIT)*;
 ```
 
-- Float literal
+- Example
+
+```flos
+-9_8_7; Decimal integer
+-9_8_7e+12; Decimal scientific notation
+-0xf_e_d; Hex integer
+-0o7_6_5; Octonary integer
+-0b1_0_1; Binary integer
+```
+
+### Float literal
+
+- Grammar
+
+```rs
+float = ("+" | "-")? ~ _integer ~ "." ~ _integer;
+float_scientific_notation = float ~ ("e" | "E") ~ ("+" | "-") ~ _integer;
+_integer = DIGIT ~ ("_"? ~ DIGIT)*;
+```
+
+- Example
 
 ```flos
 -9_8_7.6_5; Float
--9_8_7.0e+65; Floating point
+-9_8_7.0e+65; Float scientific notation
 ```
 
-- Array literal
+### Array literal
 
-```flos
-[1, 2, 3]; `[Int...]`
+- Grammar
+
+```rs
+array = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~"]";
 ```
 
-- Vector literal
+- Example
 
 ```flos
 [1, 2, 3]; `[Int: 3]`
 ```
 
-- Tuple literal
+### Vector literal
+
+- Grammar
+
+```rs
+vector = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~"]";
+```
+
+- Example
+
+```flos
+[1, 2, 3]; `[Int...]`
+```
+
+### Tuple literal
+
+- Grammar
+
+```rs
+tuple = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
+```
+
+- Example
 
 ```flos
 [1, 2, "3"]; `[Int: 2, String]`
 ```
 
-- Map literal
+### Set literal
 
-```flos
-{"name": "map", "value": 0}; `{String: String or Int}`
+- Grammar
+
+```rs
+set = "{" ~ "}" | "{" ~ expression ~ ("," ~ expression)* ~ ","? ~ "}";
 ```
 
-- Set literal
+- Example
 
 ```flos
 {"success", "failure", 1, 0}; `{String or Int}`
 ```
 
-- String literal
+### Map literal
+
+- Grammar
+
+```rs
+map = "{" ~ "}" | "{" ~ _pair ~ ("," ~ _pair)* ~ ","? ~ "}";
+_pair = string ~ ":" ~ expression;
+```
+
+- Example
+
+```flos
+{"name": "map", "value": 0}; `{String: String or Int}`
+```
+
+### String literal
+
+- Grammar
+
+```rs
+string = "\"" ~ _inner ~ "\"";
+_inner =
+  (ANY ! "\"" | "\\") |
+  "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "t" | "r" | "n") |
+  "\\" ~ ("u" ~ HEX_DIGIT{4}) |
+  "\\" ~ "(" ~ expression ~ ")"
+;
+```
+
+- Example
 
 ```flos
 "string \(props.item)\"\t\r\n\xff\u{10ffff}\\"; `[Uint8: _]` String
@@ -77,14 +163,30 @@ A single line comment begins with a `;` sign.
 
 ## Assignment
 
-- Bind immutable variable
+### Bind immutable variable
+
+- Grammar
+
+```rs
+const_declare = "const" ~ "=" ~ expression ~ comment;
+```
+
+- Example
 
 ```flos
 const value = false;
 value = true; failure!
 ```
 
-- Bind mutable variable
+### Bind mutable variable
+
+- Grammar
+
+```rs
+let_declare = "let" ~ "=" ~ expression ~ comment;
+```
+
+- Example
 
 ```flos
 let value = false;
