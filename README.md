@@ -11,9 +11,7 @@ A single line comment begins with a `;` sign.
 - Grammar
 
 ```rs
-single_line_comment = {
-  ";" ~ (ANY ! "\n")*
-}
+single_line_comment = ";" ~ (ANY ! "\n")*;
 ```
 
 - Example
@@ -36,7 +34,7 @@ single_line_comment = {
 - Grammar
 
 ```rs
-decimal_integer = ("+" | "-")? ~ "0" | NONZERO_DIGIT ~ ("_"? ~ DIGIT)*;
+decimal_integer = ("+" | "-")? ~ ("0" | NONZERO_DIGIT ~ ("_"? ~ DIGIT)*);
 decimal_scientific_notation = decimal_integer ~ ("e" | "E") ~ ("+" | "-")? ~ DIGIT;
 hex_integer = ("+" | "-")? ~ "0x" ~ HEX_DIGIT ~ "_"? ~ (HEX_DIGIT)*;
 octonary_integer = ("+" | "-")? ~ "0o" ~ OCTONARY_DIGIT ~ ("_"? ~ OCTONARY_DIGIT)*;
@@ -75,7 +73,7 @@ _integer = DIGIT ~ ("_"? ~ DIGIT)*;
 - Grammar
 
 ```rs
-array = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~"]";
+array = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
 ```
 
 - Example
@@ -89,7 +87,7 @@ array = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~"]";
 - Grammar
 
 ```rs
-vector = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~"]";
+vector = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
 ```
 
 - Example
@@ -146,12 +144,12 @@ _pair = string ~ ":" ~ expression;
 - Grammar
 
 ```rs
-string = "\"" ~ _inner ~ "\"";
+string = "\"" ~ _inner* ~ "\"";
 _inner =
-  (ANY ! "\"" | "\\") |
-  "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "t" | "r" | "n") |
-  "\\" ~ ("u" ~ HEX_DIGIT{4}) |
-  "\\" ~ "(" ~ expression ~ ")"
+  (ANY ! "\"" | "\\")
+  | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "t" | "r" | "n")
+  | "\\" ~ ("u" ~ HEX_DIGIT{4})
+  | "\\" ~ "(" ~ expression ~ ")"
 ;
 ```
 
@@ -168,7 +166,7 @@ _inner =
 - Grammar
 
 ```rs
-const_declare = "const" ~ "=" ~ expression ~ comment;
+const_declare = "const" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 ```
 
 - Example
@@ -183,7 +181,7 @@ value = true; failure!
 - Grammar
 
 ```rs
-let_declare = "let" ~ "=" ~ expression ~ comment;
+let_declare = "let" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 ```
 
 - Example
@@ -195,7 +193,15 @@ value = true; success!
 
 ## Enum
 
-### Enum Example
+- Grammar
+
+```rs
+enum = "{" ~ _inner ~ ("," ~ _inner)* ~ ","? ~ "}";
+_inner = VALUE_IDENTIFIER ~ "(" ~ TYPE_IDENTIFIER ~ ")" ~ ("=" ~ expression)?;
+enum_value = "." ~ "{" ~ VALUE_IDENTIFIER ~ ("(" ~ expression ~ ")")? ~ "}";
+```
+
+- Example
 
 ```flos
 type Ip = {
@@ -206,16 +212,25 @@ type Ip = {
 Ip.{v4}; "v4"
 Ip.{v6}; "v6"
 
-const ip_v4 = Ip.{v4}("127.0.0.1"); "127.0.0.1"
-const ip_v6 = Ip.{v6}("::1"); "::1"
+const ip_v4 = Ip.{v4("127.0.0.1")}; "127.0.0.1"
+const ip_v6 = Ip.{v6("::1")}; "::1"
 
 let ip: Ip = .{v4}; "v4"
-ip = .{v6}("::1"); "::1"
+ip = .{v6("::1")}; "::1"
 ```
 
 ## Struct
 
-### Struct Example
+- Grammar
+
+```rs
+struct = "{" ~ _inner ~ ("," ~ _inner) ~ ","? ~ "}";
+_inner =  VALUE_IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
+struct_value = "." ~ ("{" ~ "}" | "{" ~ _value_inner ~ ("," ~ _value_inner)* ~ ","? ~ "}");
+_value_inner = VALUE_IDENTIFIER ~ ":" ~ expression;
+```
+
+- Example
 
 ```flos
 type String = {
@@ -241,7 +256,15 @@ user_2.active = true;
 
 ## Interface
 
-### Interface Example
+- Grammar
+
+```rs
+interface = "{" ~ _inner ~ ("," ~ _inner) ~ ","? ~ "}";
+_inner = VALUE_IDENTIFIER ~ ("(" ~ ")" | "(" ~ params ~ ("," ~ params)* ~ ","? ~ ("..." ~ params)? ~ ")") ~ "->" TYPE_IDENTIFIER;
+params = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
+```
+
+- Example
 
 ```flos
 type StringAble = {
@@ -262,7 +285,14 @@ expand;
 
 ## Function
 
-### Function Example
+- Grammar
+
+```rs
+function = annotation* "function" IDENTIFIER ("(" ~ ")" | "(" ~ params ~ ("," ~ params)* ~ ","? ~ ("..." ~ params)? ~ ")") ~ "->" TYPE_IDENTIFIER ~ ":" ~ statement* ~ "function" ~ comment;
+params = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
+```
+
+- Example
 
 ```flos
 type {Io} = Global;
@@ -300,7 +330,13 @@ function;
 
 ## Expand
 
-### Expand Example
+- Grammar
+
+```rs
+expand = "expand" ~ combine* ~ statement* ~ function* ~ "expand" ~ comment;
+```
+
+- Example
 
 ```flos
 type {Io} = Global;
