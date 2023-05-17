@@ -358,8 +358,8 @@ expand = "expand" ~ combine* ~ statement* ~ fn* ~ "expand" ~ comment;
 expand MyBoolean:
   impl MyBooleanAble;
 
-  ; This = @This();
-  ; this = @this();
+  This = @This();
+  this = @this();
 
   @export fn new(value: Boolean = false) -> This:
     return match value:
@@ -400,7 +400,7 @@ uint32 = from(Uint32, 1); `2`
 Console.writeLine(@Type(uint32)); Uint32
 
 float64 = from(Float64, 1); `2.0`
-Console.writeLine(@Type(uint32)); Float64
+Console.writeLine(@Type(float64)); Float64
 
 IsNumber(T: Unknown) = if T in [Uint, Int, Float]: T else Void if;
 ```
