@@ -4,20 +4,20 @@ A simple script language.
 
 ## Comment
 
-### Single-line comment
+### Line comment
 
 A single line comment begins with a `;` sign.
 
 - Grammar
 
 ```rs
-single_line_comment = ";" ~ (ANY ! "\n")*;
+comment = ";" ~ (ANY ! "\n")*;
 ```
 
 - Example
 
 ```flos
-; This is a single-line comment.
+; This is a line comment.
 ```
 
 ## Data Type
@@ -37,7 +37,7 @@ single_line_comment = ";" ~ (ANY ! "\n")*;
 decimal_integer = ("+" | "-")? ~ ("0" | NONZERO_DIGIT ~ ("_"? ~ DIGIT)*);
 decimal_scientific_notation = decimal_integer ~ ("e" | "E") ~ ("+" | "-")? ~ DIGIT;
 hex_integer = ("+" | "-")? ~ "0x" ~ HEX_DIGIT ~ "_"? ~ (HEX_DIGIT)*;
-octonary_integer = ("+" | "-")? ~ "0o" ~ OCTONARY_DIGIT ~ ("_"? ~ OCTONARY_DIGIT)*;
+octal_integer = ("+" | "-")? ~ "0o" ~ OCTONARY_DIGIT ~ ("_"? ~ OCTONARY_DIGIT)*;
 binary_integer = ("+" | "-")? ~ "0b" ~ BINARY_DIGIT ~ ("_"? ~ BINARY_DIGIT)*;
 ```
 
@@ -57,7 +57,8 @@ binary_integer = ("+" | "-")? ~ "0b" ~ BINARY_DIGIT ~ ("_"? ~ BINARY_DIGIT)*;
 
 ```rs
 float = ("+" | "-")? ~ _integer ~ "." ~ _integer;
-float_scientific_notation = float ~ ("e" | "E") ~ ("+" | "-") ~ _integer;
+floating_point = float ~ ("e" | "E") ~ ("+" | "-") ~ _integer;
+hex_floating_point = hex_integer ~ ("p" | "P") ~ ("+" | "-") ~ _integer;
 _integer = DIGIT ~ ("_"? ~ DIGIT)*;
 ```
 
@@ -65,7 +66,8 @@ _integer = DIGIT ~ ("_"? ~ DIGIT)*;
 
 ```flos
 -9_8_7.6_5; Float
--9_8_7.0e+65; Float scientific notation
+-9_8_7.0e+12; Floating point
+-0xf_e_d.0p+12; Hex Floating Point
 ```
 
 ### Array literal
@@ -209,14 +211,17 @@ type Ip = {
   v6(String) = "v6",
 };
 
-Ip.{v4}; "v4"
-Ip.{v6}; "v6"
+let ip = Ip.{v4("127.0.0.1")};
+const v4 = ip.v4; "127.0.0.1"
 
-const ip_v4 = Ip.{v4("127.0.0.1")}; "127.0.0.1"
-const ip_v6 = Ip.{v6("::1")}; "::1"
+ip = Ip.{v6("::1")};
+const v6 = ip.v6; "::1"
 
-let ip: Ip = .{v4}; "v4"
-ip = .{v6("::1")}; "::1"
+ip: Ip = .{v4};
+const ip_v4 = ip.v4; "v4"
+
+ip = .{v6};
+const ip_v6 = ip.v4; "v6"
 ```
 
 ## Struct
@@ -260,8 +265,8 @@ user_2.active = true;
 
 ```rs
 interface = "{" ~ _inner ~ ("," ~ _inner) ~ ","? ~ "}";
-_inner = VALUE_IDENTIFIER ~ ("(" ~ ")" | "(" ~ params ~ ("," ~ params)* ~ ","? ~ ("..." ~ params)? ~ ")") ~ "->" TYPE_IDENTIFIER;
-params = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
+_inner = VALUE_IDENTIFIER ~ ("(" ~ ")" | "(" ~ argument ~ ("," ~ argument)* ~ ","? ~ ("..." ~ argument)? ~ ")") ~ "->" TYPE_IDENTIFIER;
+argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 ```
 
 - Example
@@ -273,13 +278,13 @@ type StringAble = {
 };
 
 expand StringAble:
-  @export function from(value: Unknown) -> String:
+  @export fn from(value: Unknown) -> String:
     ; ...
-  function;
+  fn;
 
-  @export function toString() -> String:
+  @export fn toString() -> String:
     ; ...
-  function;
+  fn;
 expand;
 ```
 
@@ -288,16 +293,16 @@ expand;
 - Grammar
 
 ```rs
-function = annotation* "function" IDENTIFIER ("(" ~ ")" | "(" ~ params ~ ("," ~ params)* ~ ","? ~ ("..." ~ params)? ~ ")") ~ "->" TYPE_IDENTIFIER ~ ":" ~ statement* ~ "function" ~ comment;
-params = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
+fn = annotation* "fn" IDENTIFIER ("(" ~ ")" | "(" ~ argument ~ ("," ~ argument)* ~ ","? ~ ("..." ~ argument)? ~ ")") ~ "->" TYPE_IDENTIFIER ~ ":" ~ statement* ~ "fn" ~ comment;
+argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 ```
 
 - Example
 
 ```flos
-type {Io} = Global;
+type {Io} = @This().Super;
 
-@export function main():
+@export fn main():
   const value = false;
   const value_pointer: Pointer(Boolean) = value.&; `0x7ffd0d8e29fc`
   const value_pointer_value: Boolean = value_pointer.*; `false`
@@ -325,7 +330,7 @@ type {Io} = Global;
   const x = 1;
   const closureFn() = x;
   const doubleFn(x: Int) -> Int = x * x;
-function;
+fn;
 ```
 
 ## Expand
@@ -333,13 +338,13 @@ function;
 - Grammar
 
 ```rs
-expand = "expand" ~ combine* ~ statement* ~ function* ~ "expand" ~ comment;
+expand = "expand" ~ combine* ~ statement* ~ fn* ~ "expand" ~ comment;
 ```
 
 - Example
 
 ```flos
-type {Io} = Global;
+type {Io} = @This().Super;
 
 @export type MyBoolean = {
   false = 0,
@@ -351,24 +356,24 @@ type {Io} = Global;
 };
 
 expand MyBoolean:
-  combine MyBooleanAble;
+  impl MyBooleanAble;
 
-  type It = @It();
-  const it = @it();
+  type This = @This();
+  const this = This.&;
 
-  @export function new(value: Boolean = false) -> It:
+  @export fn new(value: Boolean = false) -> This:
     return match value:
-    => false: .false;
-    => true: .true;
+    => false: .{false};
+    => true: .{true};
     match;
-  function;
+  fn;
 
-  @export function toString() -> String:
-    return match it:
-    => .false: "false";
-    => .true: "true";
+  @export fn toString() -> String:
+    return match this.*:
+    => .{false}: "false";
+    => .{true}: "true";
     match;
-  function;
+  fn;
 expand;
 
 const myBoolean = MyBoolean.new(true);
