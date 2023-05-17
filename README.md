@@ -58,7 +58,7 @@ binary_integer = ("+" | "-")? ~ "0b" ~ BINARY_DIGIT ~ ("_"? ~ BINARY_DIGIT)*;
 ```rs
 float = ("+" | "-")? ~ _integer ~ "." ~ _integer;
 floating_point = float ~ ("e" | "E") ~ ("+" | "-") ~ _integer;
-hex_floating_point = hex_integer ~ ("p" | "P") ~ ("+" | "-") ~ _integer;
+hex_floating_point = hex_integer ~ ("p" | "P") ~ ("+" | "-") ~ hex_integer;
 _integer = DIGIT ~ ("_"? ~ DIGIT)*;
 ```
 
@@ -168,13 +168,13 @@ _inner =
 - Grammar
 
 ```rs
-const_declare = "const" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
+immutable_bind = VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 ```
 
 - Example
 
 ```flos
-const value = false;
+value = false;
 value = true; failure!
 ```
 
@@ -183,14 +183,14 @@ value = true; failure!
 - Grammar
 
 ```rs
-let_declare = "let" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
+mutable_bind = "$" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 ```
 
 - Example
 
 ```flos
-let value = false;
-value = true; success!
+$value = false;
+$value = true; success!
 ```
 
 ## Enum
@@ -206,22 +206,22 @@ enum_value = "." ~ "{" ~ VALUE_IDENTIFIER ~ ("(" ~ expression ~ ")")? ~ "}";
 - Example
 
 ```flos
-type Ip = {
+Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
 };
 
-let ip = Ip.{v4("127.0.0.1")};
-const v4 = ip.v4; "127.0.0.1"
+$ip = Ip.{v4("127.0.0.1")};
+v4 = $ip.v4; "127.0.0.1"
 
-ip = Ip.{v6("::1")};
-const v6 = ip.v6; "::1"
+$ip = Ip.{v6("::1")};
+v6 = $ip.v6; "::1"
 
-ip: Ip = .{v4};
-const ip_v4 = ip.v4; "v4"
+$ip: Ip = .{v4};
+ip_v4 = $ip.v4; "v4"
 
-ip = .{v6};
-const ip_v6 = ip.v4; "v6"
+$ip = .{v6};
+ip_v6 = $ip.v4; "v6"
 ```
 
 ## Struct
@@ -238,25 +238,25 @@ _value_inner = VALUE_IDENTIFIER ~ ":" ~ expression;
 - Example
 
 ```flos
-type String = {
+String = {
   value: [Uint8: _] = [],
   length: Uint = 0,
 };
 
-type User = {
+User = {
   name: String = "user",
   email: String = "user@example.com",
   active: Bool = false,
 };
 
-const user_1 = User.{
+user_1 = User.{
   name: "user_1",
   email: "user_1@example.com",
   active: true,
 };
 
-let user_2: User = .{};
-user_2.active = true;
+$user_2: User = .{};
+$user_2.active = true;
 ```
 
 ## Interface
@@ -272,8 +272,8 @@ argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 - Example
 
 ```flos
-type StringAble = {
-  fromUint8(value: String) -> String,
+StringAble = {
+  from(value: Unknown) -> String,
   toString() -> String,
 };
 
@@ -300,36 +300,36 @@ argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 - Example
 
 ```flos
-type {Io} = @This().Super;
+{Console} = @Global();
 
 @export fn main():
-  const value = false;
-  const value_pointer: Pointer(Boolean) = value.&; `0x7ffd0d8e29fc`
-  const value_pointer_value: Boolean = value_pointer.*; `false`
+  value = false;
+  value_pointer: Pointer(Boolean) = value.&; `0x7ffd0d8e29fc`
+  value_pointer_value: Boolean = value_pointer.*; `false`
 
-  let failure_value_pointer_1 = value.&; failure!
-  let failure_value_pointer_2 = value_pointer; failure!
+  $failure_value_pointer_1 = value.&; failure!
+  $failure_value_pointer_2 = value_pointer; failure!
 
-  let success_value_pointer_value_1 = value; clone success!
-  let success_value_pointer_value_2 = value_pointer_value; clone success!
+  $success_value_pointer_value_1 = value; clone success!
+  $success_value_pointer_value_2 = value_pointer_value; clone success!
 
-  let new_value = value_pointer_value; `false`
-  new_value_pointer.* = true
-  new_value_pointer_value = new_value_pointer.*; `true`
+  $new_value = value_pointer_value; `false`
+  $new_value_pointer.* = true
+  $new_value_pointer_value = new_value_pointer.*; `true`
 
-  const {output} = Io;
+  {writeLine} = Console;
 
-  output(value); `false`;
-  output(value_pointer); `0x7ffd0d8e29fc`
-  output(value_pointer_value); `false`
+  writeLine(value); `false`;
+  writeLine(value_pointer); `0x7ffd0d8e29fc`
+  writeLine(value_pointer_value); `false`
 
-  output(new_value); `true`;
-  output(new_value_pointer); `0x6b3f1a8d6c0f`
-  output(new_value_pointer_value); `true`
+  writeLine($new_value); `true`;
+  writeLine($new_value_pointer); `0x6b3f1a8d6c0f`
+  writeLine($new_value_pointer_value); `true`
 
-  const x = 1;
-  const closureFn() = x;
-  const doubleFn(x: Int) -> Int = x * x;
+  x = 1;
+  closureFn() = x;
+  doubleFn(x: Int) -> Int = x * x;
 fn;
 ```
 
@@ -344,22 +344,22 @@ expand = "expand" ~ combine* ~ statement* ~ fn* ~ "expand" ~ comment;
 - Example
 
 ```flos
-type {Io} = @This().Super;
+{Console} = @Global();
 
-@export type MyBoolean = {
+@export MyBoolean = {
   false = 0,
   true = 1,
 };
 
-@export type MyBooleanAble = {
+@export MyBooleanAble = {
   toString() -> String,
 };
 
 expand MyBoolean:
   impl MyBooleanAble;
 
-  type This = @This();
-  const this = This.&;
+  This = @This();
+  this = This.&;
 
   @export fn new(value: Boolean = false) -> This:
     return match value:
@@ -376,9 +376,9 @@ expand MyBoolean:
   fn;
 expand;
 
-const myBoolean = MyBoolean.new(true);
-const str = myBoolean.toString();
+myBoolean = MyBoolean.new(true);
+str = myBoolean.toString();
 
-Io.output(myBoolean); `MyBoolean.{true}`
-Io.output(str); `true`
+Console.writeLine(myBoolean); `MyBoolean.{true}`
+Console.writeLine(str); `true`
 ```
