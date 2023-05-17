@@ -358,8 +358,8 @@ expand = "expand" ~ combine* ~ statement* ~ fn* ~ "expand" ~ comment;
 expand MyBoolean:
   impl MyBooleanAble;
 
-  This = @This();
-  this = This.&;
+  ; This = @This();
+  ; this = @this();
 
   @export fn new(value: Boolean = false) -> This:
     return match value:
@@ -369,7 +369,7 @@ expand MyBoolean:
   fn;
 
   @export fn toString() -> String:
-    return match this.*:
+    return match this:
     => .{false}: "false";
     => .{true}: "true";
     match;
