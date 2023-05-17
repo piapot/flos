@@ -16,7 +16,7 @@ comment = ";" ~ (ANY ! "\n")*;
 
 - Example
 
-```flos
+```rs
 ; This is a line comment.
 ```
 
@@ -43,7 +43,7 @@ binary_integer = ("+" | "-")? ~ "0b" ~ BINARY_DIGIT ~ ("_"? ~ BINARY_DIGIT)*;
 
 - Example
 
-```flos
+```rs
 -9_8_7; Decimal integer
 -9_8_7e+12; Decimal scientific notation
 -0xf_e_d; Hex integer
@@ -64,7 +64,7 @@ _integer = DIGIT ~ ("_"? ~ DIGIT)*;
 
 - Example
 
-```flos
+```rs
 -9_8_7.6_5; Float
 -9_8_7.0e+12; Floating point
 -0xf_e_d.0p+12; Hex Floating Point
@@ -80,7 +80,7 @@ array = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
 
 - Example
 
-```flos
+```rs
 [1, 2, 3]; `[Int: 3]`
 ```
 
@@ -94,7 +94,7 @@ vector = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
 
 - Example
 
-```flos
+```rs
 [1, 2, 3]; `[Int...]`
 ```
 
@@ -108,7 +108,7 @@ tuple = "[" ~ "]" | "[" ~ expression ~ ("," ~ expression)* ~ ","? ~ "]";
 
 - Example
 
-```flos
+```rs
 [1, 2, "3"]; `[Int: 2, String]`
 ```
 
@@ -122,7 +122,7 @@ set = "{" ~ "}" | "{" ~ expression ~ ("," ~ expression)* ~ ","? ~ "}";
 
 - Example
 
-```flos
+```rs
 {"success", "failure", 1, 0}; `{String or Int}`
 ```
 
@@ -137,7 +137,7 @@ _pair = string ~ ":" ~ expression;
 
 - Example
 
-```flos
+```rs
 {"name": "map", "value": 0}; `{String: String or Int}`
 ```
 
@@ -157,7 +157,7 @@ _inner =
 
 - Example
 
-```flos
+```rs
 "string \(props.item)\"\t\r\n\xff\u{10ffff}\\"; `[Uint8: _]` String
 ```
 
@@ -173,7 +173,7 @@ immutable_bind = VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 
 - Example
 
-```flos
+```rs
 value = false;
 value = true; failure!
 ```
@@ -188,7 +188,7 @@ mutable_bind = "$" ~ VALUE_IDENTIFIER ~ "=" ~ expression ~ comment;
 
 - Example
 
-```flos
+```rs
 $value = false;
 $value = true; success!
 ```
@@ -205,7 +205,7 @@ enum_value = "." ~ "{" ~ VALUE_IDENTIFIER ~ ("(" ~ expression ~ ")")? ~ "}";
 
 - Example
 
-```flos
+```rs
 Ip = {
   v4(String) = "v4",
   v6(String) = "v6",
@@ -237,7 +237,7 @@ _value_inner = VALUE_IDENTIFIER ~ ":" ~ expression;
 
 - Example
 
-```flos
+```rs
 String = {
   value: [Uint8: _] = [],
   length: Uint = 0,
@@ -271,7 +271,7 @@ argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 
 - Example
 
-```flos
+```rs
 StringAble = {
   from(value: Unknown) -> String,
   toString() -> String,
@@ -299,7 +299,7 @@ argument = IDENTIFIER ~ ":" ~ TYPE_IDENTIFIER ~ ("=" ~ expression)?;
 
 - Example
 
-```flos
+```rs
 {Console} = @Global();
 
 @export fn main():
@@ -343,7 +343,7 @@ expand = "expand" ~ combine* ~ statement* ~ fn* ~ "expand" ~ comment;
 
 - Example
 
-```flos
+```rs
 {Console} = @Global();
 
 @export MyBoolean = {
@@ -381,4 +381,26 @@ str = myBoolean.toString();
 
 Console.writeLine(myBoolean); `MyBoolean.{true}`
 Console.writeLine(str); `true`
+```
+
+## Generic
+
+- Example
+
+```rs
+{Console} = @Global();
+
+Number = Uint or Int or Float;
+
+fn from(T: Number, n: T) -> T:
+  return n + 1;
+fn;
+
+uint32 = from(Uint32, 1); `2`
+Console.writeLine(@Type(uint32)); Uint32
+
+float64 = from(Float64, 1); `2.0`
+Console.writeLine(@Type(uint32)); Float64
+
+IsNumber(T: Unknown) = if T in [Uint, Int, Float]: T else Void if;
 ```
